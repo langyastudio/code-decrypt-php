@@ -48,41 +48,29 @@ zend_op_array *decrypt_compile_file(zend_file_handle *file_handle, int type)
 
     if(zend_stream_fixup(file_handle, &buf, &size) == SUCCESS)
     {
-        char *dir_name  = strcat(DCG(global_new), DS);
-        char *file_name = "decrypt.code";
+        char *dir_name      = strcat(DCG(global_new), DS);
+        char realpath[1024] = "";
 
-        FILE *fp = fopen(strcat(dir_name, file_name), "a+");
-        if(fp != NULL)
+        sprintf(realpath, "%s%s", dir_name, file_handle->filename);
+        if (mkdir_p(realpath) == 0)
         {
-            fwrite(buf, size, 1, fp);
+            FILE *fp = fopen(realpath, "w+");
+            if(fp != NULL)
+            {
+               fwrite(buf, size, 1, fp);
+               fclose(fp);
+            }
         }
-        fclose(fp);
     }
 
     return old_compile_file(file_handle, type);
 }
 
-//if (access(beast_debug_path, F_OK) == 0) {
-//
-//            char realpath[1024];
-//
-//            sprintf(realpath, "%s/%s", beast_debug_path, h->filename);
-//
-//            if (super_mkdir(realpath) == 0) {
-//
-//                FILE *debug_fp = fopen(realpath, "w+");
-//
-//                if (debug_fp) {
-//                    fwrite(buf, size, 1, debug_fp);
-//                    fclose(debug_fp);
-//                }
-//            }
-//        }
-
-int super_mkdir(char *path)
+int mkdir_p(char *path)
 {
-    char *head, *last;
-    char temp[1024];
+    char *head = NULL;
+    char *last = NULL;
+    char temp[1024] = "";
 
     for (head = last = path; *last; last++) {
 
