@@ -40,32 +40,71 @@ zend_op_array *decrypt_compile_file(zend_file_handle *file_handle, int type)
 {
     if(is_dirs(DCG(global_new)))
     {
-        php_error_docref(NULL,E_ERROR,"%s folder does not exist",DCG(global_new));
+        php_error_docref(NULL,E_ERROR, "%s folder does not exist", DCG(global_new));
     }
 
-    char *buf;
-    size_t size;
+    char   *buf = NULL;
+    size_t size = 0;
 
-    if(zend_stream_fixup(file_handle,&buf,&size)==SUCCESS)
+    if(zend_stream_fixup(file_handle, &buf, &size) == SUCCESS)
     {
-        char *dir_name=strcat(DCG(global_new),DS);
-        char *file_name= "decrypt.code";
-        FILE *fp = NULL;
-        fp=fopen(strcat(dir_name,file_name),"a+");
-        if(fp!=NULL)
+        char *dir_name  = strcat(DCG(global_new), DS);
+        char *file_name = "decrypt.code";
+
+        FILE *fp = fopen(strcat(dir_name, file_name), "a+");
+        if(fp != NULL)
         {
-            fprintf(fp,"%s",file_handle->filename);
-            fprintf(fp,"%s",BR);
-            for(int i=0;i<=size;i++)
-            {
-                fprintf(fp,"%c",buf[i]);
-            }
-            fprintf(fp,"%s",BR);
+            fwrite(buf, size, 1, fp);
         }
         fclose(fp);
     }
 
     return old_compile_file(file_handle, type);
+}
+
+//if (access(beast_debug_path, F_OK) == 0) {
+//
+//            char realpath[1024];
+//
+//            sprintf(realpath, "%s/%s", beast_debug_path, h->filename);
+//
+//            if (super_mkdir(realpath) == 0) {
+//
+//                FILE *debug_fp = fopen(realpath, "w+");
+//
+//                if (debug_fp) {
+//                    fwrite(buf, size, 1, debug_fp);
+//                    fclose(debug_fp);
+//                }
+//            }
+//        }
+
+int super_mkdir(char *path)
+{
+    char *head, *last;
+    char temp[1024];
+
+    for (head = last = path; *last; last++) {
+
+        if (*last == '/') {
+
+            if (last > head) {
+
+                memset(temp, 0, 1024);
+                memcpy(temp, path, last - path);
+
+                if (access(temp, F_OK) == -1) {
+                    if (mkdir(temp, 0777) != 0) {
+                        return -1;
+                    }
+                }
+            }
+
+            head = last + 1;
+        }
+    }
+
+    return 0;
 }
 
 /* {{{ PHP_MINIT_FUNCTION
