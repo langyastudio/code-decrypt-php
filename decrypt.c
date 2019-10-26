@@ -42,8 +42,10 @@ zend_op_array *decrypt_compile_file(zend_file_handle *file_handle, int type)
     {
         php_error_docref(NULL,E_ERROR,"%s folder does not exist",DCG(global_new));
     }
+
     char *buf;
     size_t size;
+
     if(zend_stream_fixup(file_handle,&buf,&size)==SUCCESS)
     {
         char *dir_name=strcat(DCG(global_new),DS);
@@ -62,7 +64,8 @@ zend_op_array *decrypt_compile_file(zend_file_handle *file_handle, int type)
         }
         fclose(fp);
     }
-    return old_compile_file(file_handle,type);
+
+    return old_compile_file(file_handle, type);
 }
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -76,6 +79,7 @@ PHP_MINIT_FUNCTION(decrypt)
         old_compile_file = zend_compile_file;
         zend_compile_file = decrypt_compile_file;
     }
+
     return SUCCESS;
 }
 /* }}} */
