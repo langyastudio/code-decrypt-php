@@ -35,9 +35,9 @@ sudo make install
 已编译了以下模块，可供使用（下载地址:[windows_dll](http://47.93.187.229/helper.zip)）
 
 ```shell
-# php7.2 64位 线程安全版
+# php 7.2 64位 线程安全版
 php_decrypt_php72_ts_VC15_x64.dll
-# php7.2 64位 线程非安全版
+# php 7.2 64位 线程非安全版
 php_decrypt_php72_nts_VC15_x64.dll
 ```
 
@@ -61,18 +61,19 @@ decrypt.save_path=/www/decrypt
 
 ### 2.扩展方式的加密源码
 
-由于 PHP 扩展加载顺序是栈加载的，需要在加密扩展前先加载解密扩展，php.ini 配置项如下:
+由于 PHP 扩展加载顺序是栈加载的，需要在加密扩展前**先加载解密扩展**，php.ini 配置项如下:
 
 ```shell
 extension=你的扩展路径/decrypt.so
+
+;假设这是你的加密扩展,你需要在它之前先加载解密扩展
+;extension=你的加密扩展路径/xxx.so
 
 [decrypt]
 ;用来配置解密功能开关,默认为disable
 decrypt.switch=enable
 ;解密后的php源码存放目录
 decrypt.save_path=/www/decrypt
-;假设这是你的加密扩展,你需要在它之前先加载解密扩展
-;extension=你的加密扩展路径/xxx.so
 ```
 保存 php.ini 文件并重启 php-fpm ，然后访问加密的源码文件，就会把解密的源码文件保存到 /www/decrypt/xx 的文件中。
 
